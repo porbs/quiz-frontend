@@ -1,0 +1,32 @@
+<div class="container">
+  <div class="row" *ngIf="!isLoading && !resultReady">
+    <form [formGroup]="quizForm" (ngSubmit)="onSubmit()">
+      <div formArrayName="taskForms"
+      *ngFor="let taskForm of quizForm.get('taskForms').controls; let i = index;">
+        <div [formGroupName]="i" >
+          <div class="div" [ngSwitch]="tasks[i].type">
+            <div class="question-wrapper" *ngSwitchCase="'true-false-question'">
+              <div class="question">
+                {{i+1}}. {{tasks[i].question.value}}
+              </div>
+              <div class="options true-false-options">
+                <mat-radio-group formControlName="value">
+                  <mat-radio-button value="{{i.toString() + separator}}true">True</mat-radio-button>
+                  <mat-radio-button value="{{i.toString() + separator}}false">False</mat-radio-button>
+                </mat-radio-group>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="buttons-area">
+        <button mat-stroked-button>Submit</button>
+      </div>
+    </form>
+  </div>
+  <div class="row" *ngIf="resultReady">
+    <div class="result">
+      Score: {{score}}
+    </div>
+  </div>
+</div>
