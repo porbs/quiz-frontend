@@ -33,6 +33,20 @@
               </div>
             </div>
 
+            <div class="question-wrapper" *ngSwitchCase="'n-from-four-question'">
+              <div class="question">
+                {{i+1}}. {{tasks[i].question.value}}
+              </div>
+
+              <div class="options n-from-four-option">
+                <mat-form-field class="n-from-four-option-form">
+                  <mat-select placeholder="Options" formControlName="value" multiple >
+                    <mat-option *ngFor="let option of tasks[i].question.options" value="{{i.toString() + separator + option.value}}">{{option.value}}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>

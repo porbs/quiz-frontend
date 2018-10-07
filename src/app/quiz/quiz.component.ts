@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {ApiService} from '../services/api/api.service';
 import {Task} from '../models/task.model';
-import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 
 @Component({
   selector: 'app-quiz',
@@ -55,6 +55,10 @@ export class QuizComponent implements OnInit {
           console.log('Building one-from-four question form');
           this.addOneFromFourQuestionForm();
           break;
+        case 'n-from-four-question':
+          console.log('Building n-from-four question form');
+          this.addNFromFourQuestionForm(task.question.options);
+          break;
         default:
           console.log(`Unknown question type: ${task.type}`);
           break;
@@ -75,7 +79,13 @@ export class QuizComponent implements OnInit {
     }));
   }
 
-  private parseFormValue(formValue: string): {index: number, value: string} | undefined {
+  private addNFromFourQuestionForm(options: Array<{value: string}>) {
+    this.taskForms.push(this.formBuilder.group({
+      value: ['']
+    }));
+  }
+
+  private parseSingleFormValue(formValue: string): {index: number, value: string} | undefined {
     const result = formValue.split(this.separator);
     if (result.length !== 2) {
       console.error(`Invalid form value: ${formValue}`);
@@ -87,7 +97,25 @@ export class QuizComponent implements OnInit {
     };
   }
 
-  async onSubmit() {
+  private parseMultipleFormValues(formValues: Array<string>): {index: number, value: Array<string>} | undefined {
+    let result: {index: number, value: Array<string>} = {};
+    formValues.forEach(formValue => {
+      const parsedItem = this.parseSingleFormValue(formValue);
+      if (parsedItem === undefined) {
+        console.error(`Parse error: ${formValue}`);
+        return;
+      }
+      if (result.index === undefined) {
+        result.index = parsedItem.index;
+        result.value = [parsedItem.value];
+      } else {
+        result.value.push(parsedItem.value);
+      }
+    });
+    return result;
+  }
+
+  onSubmit() {
     if (this.quizForm.invalid) {
       alert('Error: Uncompleted form');
       return;
@@ -97,7 +125,14 @@ export class QuizComponent implements OnInit {
     const data: {_id: string, answer: any}[] = [];
 
     formValues.forEach(formItem => {
-      const parsedItem = this.parseFormValue(formItem.value);
+      let parsedItem: {index: number, value: any};
+
+      if (typeof(formItem.value) === 'string') {
+        parsedItem = this.parseSingleFormValue(formItem.value);
+      } else if (Array.isArray(formItem.value)) {
+        parsedItem = this.parseMultipleFormValues(formItem.value);
+      }
+
       if (parsedItem === undefined) {
         console.error(`Parse error: ${formItem}`);
         return;
@@ -120,7 +155,12 @@ export class QuizComponent implements OnInit {
             }
           });
           break;
-
+        case 'n-from-four-question':
+          data.push({
+            _id: this.tasks[parsedItem.index]._id,
+            answer: parsedItem.value.map(item => ({value: item}))
+          });
+          break;
         default:
           console.error(`Unknown question type: ${this.tasks[parsedItem.index].type}`);
           return;
@@ -136,6 +176,7 @@ export class QuizComponent implements OnInit {
         });
         this.score = `${score} / ${result.length} (${Math.round(score * 100 / result.length)}%)`;
         this.resultReady = true;
+        console.log(result);
       },
       error => {
         console.error('Submit tasks error occurred: ', error);
