@@ -1,5 +1,6 @@
 .question-wrapper {
   width: 50%;
+  min-width: 550px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -25,6 +26,7 @@
 
 .result {
   width: 50%;
+  min-width: 550px;
   height: 150px;
   line-height: 150px;
   font-size: 50px;
@@ -46,5 +48,17 @@
   margin-left: 10px;
 }
 .true-false-options *:first-child {
+  margin-left: 0;
+}
+
+/*one from four question type*/
+.one-from-four-option {
+  display: flex;
+  flex-direction: row;
+}
+.one-from-four-option * {
+  margin-left: 10px;
+}
+.one-from-four-option *:first-child {
   margin-left: 0;
 }

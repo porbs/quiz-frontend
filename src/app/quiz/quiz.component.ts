@@ -51,6 +51,10 @@ export class QuizComponent implements OnInit {
           console.log('Building true-false question form');
           this.addTrueFalseQuestionForm();
           break;
+        case 'one-from-four-question':
+          console.log('Building one-from-four question form');
+          this.addOneFromFourQuestionForm();
+          break;
         default:
           console.log(`Unknown question type: ${task.type}`);
           break;
@@ -60,6 +64,12 @@ export class QuizComponent implements OnInit {
 
   private addTrueFalseQuestionForm() {
     this.taskForms = this.quizForm.get('taskForms') as FormArray;
+    this.taskForms.push(this.formBuilder.group({
+      value: ['', Validators.required]
+    }));
+  }
+
+  private addOneFromFourQuestionForm() {
     this.taskForms.push(this.formBuilder.group({
       value: ['', Validators.required]
     }));
@@ -102,6 +112,15 @@ export class QuizComponent implements OnInit {
             }
           });
           break;
+        case 'one-from-four-question':
+          data.push({
+            _id: this.tasks[parsedItem.index]._id,
+            answer: {
+              value: parsedItem.value
+            }
+          });
+          break;
+
         default:
           console.error(`Unknown question type: ${this.tasks[parsedItem.index].type}`);
           return;

@@ -7,7 +7,7 @@ import { AppRoutingModule } from './app-routing.module';
 import {HttpClientModule} from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {MatFormFieldModule, MatRadioModule, MatInputModule, MatSelectModule, MatButtonModule} from '@angular/material';
+import {MatFormFieldModule, MatRadioModule, MatInputModule, MatSelectModule, MatButtonModule, MatCheckboxModule} from '@angular/material';
 
 @NgModule({
   declarations: [
@@ -26,7 +26,8 @@ import {MatFormFieldModule, MatRadioModule, MatInputModule, MatSelectModule, Mat
     MatInputModule,
     MatSelectModule,
     MatRadioModule,
-    MatButtonModule
+    MatButtonModule,
+    MatCheckboxModule
   ],
   providers: [],
   bootstrap: [AppComponent]
