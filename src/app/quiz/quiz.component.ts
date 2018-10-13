@@ -15,7 +15,6 @@ export class QuizComponent implements OnInit {
   isLoading = true;
   resultReady = false;
   score = '';
-  separator = '!@#s&**&^%$';
 
   constructor(
     private api: ApiService,
@@ -49,15 +48,27 @@ export class QuizComponent implements OnInit {
       switch (task.type) {
         case 'true-false-question':
           console.log('Building true-false question form');
-          this.addTrueFalseQuestionForm();
+          this.addTrueFalseQuestionForm(task._id);
           break;
         case 'one-from-four-question':
           console.log('Building one-from-four question form');
-          this.addOneFromFourQuestionForm();
+          this.addOneFromFourQuestionForm(task._id);
           break;
         case 'n-from-four-question':
           console.log('Building n-from-four question form');
-          this.addNFromFourQuestionForm(task.question.options);
+          this.addNFromFourQuestionForm(task._id);
+          break;
+        case 'number-question':
+          console.log('Building number question form');
+          this.addNumberQuestionForm(task._id);
+          break;
+        case 'word-question':
+          console.log('Building word question form');
+          this.addWordQuestionForm(task._id);
+          break;
+        case 'interval-question':
+          console.log('Building interval question form');
+          this.addIntervalQuestionForm(task._id);
           break;
         default:
           console.log(`Unknown question type: ${task.type}`);
@@ -66,53 +77,54 @@ export class QuizComponent implements OnInit {
     });
   }
 
-  private addTrueFalseQuestionForm() {
+  private addTrueFalseQuestionForm(id: string) {
     this.taskForms = this.quizForm.get('taskForms') as FormArray;
     this.taskForms.push(this.formBuilder.group({
+      id: [id, Validators.required],
+      type: ['true-false-question', Validators.required],
       value: ['', Validators.required]
     }));
   }
 
-  private addOneFromFourQuestionForm() {
+  private addOneFromFourQuestionForm(id: string) {
     this.taskForms.push(this.formBuilder.group({
+      id: [id, Validators.required],
+      type: ['one-from-four-question', Validators.required],
       value: ['', Validators.required]
     }));
   }
 
-  private addNFromFourQuestionForm(options: Array<{value: string}>) {
+  private addNFromFourQuestionForm(id: string) {
     this.taskForms.push(this.formBuilder.group({
+      id: [id, Validators.required],
+      type: ['n-from-four-question', Validators.required],
       value: ['']
     }));
   }
 
-  private parseSingleFormValue(formValue: string): {index: number, value: string} | undefined {
-    const result = formValue.split(this.separator);
-    if (result.length !== 2) {
-      console.error(`Invalid form value: ${formValue}`);
-      return;
-    }
-    return {
-      index: +result[0],
-      value: result[1]
-    };
+  private addNumberQuestionForm(id: string) {
+    this.taskForms.push(this.formBuilder.group({
+      id: [id, Validators.required],
+      type: ['number-question', Validators.required],
+      value: ['', Validators.required]
+    }));
   }
 
-  private parseMultipleFormValues(formValues: Array<string>): {index: number, value: Array<string>} | undefined {
-    let result: {index: number, value: Array<string>} = {};
-    formValues.forEach(formValue => {
-      const parsedItem = this.parseSingleFormValue(formValue);
-      if (parsedItem === undefined) {
-        console.error(`Parse error: ${formValue}`);
-        return;
-      }
-      if (result.index === undefined) {
-        result.index = parsedItem.index;
-        result.value = [parsedItem.value];
-      } else {
-        result.value.push(parsedItem.value);
-      }
-    });
-    return result;
+  private addWordQuestionForm(id: string) {
+    this.taskForms.push(this.formBuilder.group({
+      id: [id, Validators.required],
+      type: ['word-question', Validators.required],
+      value: ['', Validators.required]
+    }));
+  }
+
+  private addIntervalQuestionForm(id: string) {
+    this.taskForms.push(this.formBuilder.group({
+      id: [id, Validators.required],
+      type: ['interval-question', Validators.required],
+      from: ['', Validators.required],
+      to: ['', Validators.required]
+    }));
   }
 
   onSubmit() {
@@ -120,49 +132,62 @@ export class QuizComponent implements OnInit {
       alert('Error: Uncompleted form');
       return;
     }
-
-    const formValues: Array<{value: string}> = this.quizForm.get('taskForms').value;
+    const formValues: Array<any> = this.quizForm.get('taskForms').value;
     const data: {_id: string, answer: any}[] = [];
 
     formValues.forEach(formItem => {
-      let parsedItem: {index: number, value: any};
-
-      if (typeof(formItem.value) === 'string') {
-        parsedItem = this.parseSingleFormValue(formItem.value);
-      } else if (Array.isArray(formItem.value)) {
-        parsedItem = this.parseMultipleFormValues(formItem.value);
-      }
-
-      if (parsedItem === undefined) {
-        console.error(`Parse error: ${formItem}`);
-        return;
-      }
-
-      switch (this.tasks[parsedItem.index].type) {
+      switch (formItem.type) {
         case 'true-false-question':
           data.push({
-            _id: this.tasks[parsedItem.index]._id,
+            _id: formItem.id,
             answer: {
-              value: parsedItem.value === 'true'
+              value: formItem.value === 'true'
             }
           });
           break;
         case 'one-from-four-question':
           data.push({
-            _id: this.tasks[parsedItem.index]._id,
+            _id: formItem.id,
             answer: {
-              value: parsedItem.value
+              value: formItem.value
             }
           });
           break;
         case 'n-from-four-question':
           data.push({
-            _id: this.tasks[parsedItem.index]._id,
-            answer: parsedItem.value.map(item => ({value: item}))
+            _id: formItem.id,
+            answer: (formItem.value as Array<string>).map(item => ({value: item}))
+          });
+          break;
+        case 'number-question':
+          data.push({
+            _id: formItem.id,
+            answer: {
+              value: +formItem.value
+            }
+          });
+          break;
+        case 'word-question':
+          data.push({
+            _id: formItem.id,
+            answer: {
+              value: formItem.value
+            }
+          });
+          break;
+        case 'interval-question':
+          data.push({
+            _id: formItem.id,
+            answer: {
+              value: {
+                from: +formItem.from,
+                to: +formItem.to
+              }
+            }
           });
           break;
         default:
-          console.error(`Unknown question type: ${this.tasks[parsedItem.index].type}`);
+          console.error(`Unknown question type: ${formItem.type}`);
           return;
       }
     });
@@ -174,7 +199,7 @@ export class QuizComponent implements OnInit {
         result.forEach(item => {
           score += item.mark;
         });
-        this.score = `${score} / ${result.length} (${Math.round(score * 100 / result.length)}%)`;
+        this.score = `${score.toFixed(2)} / ${result.length.toFixed(2)} (${Math.round(score * 100 / result.length)}%)`;
         this.resultReady = true;
         console.log(result);
       },

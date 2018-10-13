@@ -12,8 +12,8 @@
               </div>
               <div class="options true-false-options">
                 <mat-radio-group formControlName="value">
-                  <mat-radio-button value="{{i.toString() + separator}}true">True</mat-radio-button>
-                  <mat-radio-button value="{{i.toString() + separator}}false">False</mat-radio-button>
+                  <mat-radio-button value="true">True</mat-radio-button>
+                  <mat-radio-button value="false">False</mat-radio-button>
                 </mat-radio-group>
               </div>
             </div>
@@ -25,8 +25,9 @@
               <div class="options one-from-four-option">
                 <mat-radio-group formControlName="value">
 
-                  <mat-radio-button *ngFor="let option of tasks[i].question.options"
-                                    value="{{i.toString() + separator + option.value}}">
+                  <mat-radio-button style="display: flex; flex-direction: column"
+                                    *ngFor="let option of tasks[i].question.options"
+                                    value="{{option.value}}">
                     {{option.value}}
                   </mat-radio-button>
                 </mat-radio-group>
@@ -39,15 +40,74 @@
               </div>
 
               <div class="options n-from-four-option">
-                <mat-form-field class="n-from-four-option-form">
-                  <mat-select placeholder="Options" formControlName="value" multiple >
-                    <mat-option *ngFor="let option of tasks[i].question.options" value="{{i.toString() + separator + option.value}}">{{option.value}}</mat-option>
+                <mat-form-field class="n-from-four-option-form" appearance="outline">
+                  <mat-label>Options</mat-label>
+                  <mat-select formControlName="value" multiple >
+                    <mat-option *ngFor="let option of tasks[i].question.options" value="{{option.value}}">{{option.value}}</mat-option>
                   </mat-select>
                 </mat-form-field>
               </div>
             </div>
 
+            <div class="question-wrapper" *ngSwitchCase="'number-question'">
+              <div class="question">
+                {{i+1}}. {{tasks[i].question.value}}
+              </div>
+
+              <div class="options number-question-answer">
+                <mat-form-field style="width: 100%"  appearance="outline">
+                  <mat-label>Answer</mat-label>
+                  <input matInput placeholder="Enter a number" formControlName="value" [type]="'number'">
+                  <mat-error *ngIf="taskForm.get('value').hasError('required')">
+                    This field is required
+                  </mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="question-wrapper" *ngSwitchCase="'word-question'">
+              <div class="question">
+                {{i+1}}. {{tasks[i].question.value}}
+              </div>
+
+              <div class="options word-question-answer">
+                <mat-form-field style="width: 100%"  appearance="outline">
+                  <mat-label>Answer</mat-label>
+                  <input matInput placeholder="Enter a text" formControlName="value" [type]="'text'">
+                  <mat-error *ngIf="taskForm.get('value').hasError('required')">
+                    This field is required
+                  </mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="question-wrapper" *ngSwitchCase="'interval-question'">
+              <div class="question">
+                {{i+1}}. {{tasks[i].question.value}}
+              </div>
+
+              <div class="options interval-question-answer">
+                <mat-form-field style="width: 100%"  appearance="outline">
+                  <mat-label>From</mat-label>
+                  <input matInput placeholder="Enter a number" formControlName="from" [type]="'number'">
+                  <mat-error *ngIf="taskForm.get('from').hasError('required')">
+                    This field is required
+                  </mat-error>
+                </mat-form-field>
+                <mat-form-field style="width: 100%"  appearance="outline">
+                  <mat-label>To</mat-label>
+                  <input matInput placeholder="Enter a number" formControlName="to" [type]="'number'">
+                  <mat-error *ngIf="taskForm.get('to').hasError('required')">
+                    This field is required
+                  </mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+
           </div>
+
+
+
         </div>
       </div>
       <div class="buttons-area">
