@@ -27,7 +27,15 @@ export class QuizComponent implements OnInit {
   private getTasks(): void {
     this.api.getTasks().subscribe(
       (data: Task[]) => {
-        this.tasks = data;
+        const shuffle = (array: Array<any>): Array<any> => {
+          for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+          }
+          return array;
+        };
+
+        this.tasks = shuffle(data);
         this.buildQuizForm();
       },
       error => {
@@ -47,27 +55,21 @@ export class QuizComponent implements OnInit {
     this.tasks.forEach(task => {
       switch (task.type) {
         case 'true-false-question':
-          console.log('Building true-false question form');
           this.addTrueFalseQuestionForm(task._id);
           break;
         case 'one-from-four-question':
-          console.log('Building one-from-four question form');
           this.addOneFromFourQuestionForm(task._id);
           break;
         case 'n-from-four-question':
-          console.log('Building n-from-four question form');
           this.addNFromFourQuestionForm(task._id);
           break;
         case 'number-question':
-          console.log('Building number question form');
           this.addNumberQuestionForm(task._id);
           break;
         case 'word-question':
-          console.log('Building word question form');
           this.addWordQuestionForm(task._id);
           break;
         case 'interval-question':
-          console.log('Building interval question form');
           this.addIntervalQuestionForm(task._id);
           break;
         default:
@@ -87,6 +89,7 @@ export class QuizComponent implements OnInit {
   }
 
   private addOneFromFourQuestionForm(id: string) {
+    this.taskForms = this.quizForm.get('taskForms') as FormArray;
     this.taskForms.push(this.formBuilder.group({
       id: [id, Validators.required],
       type: ['one-from-four-question', Validators.required],
@@ -95,6 +98,7 @@ export class QuizComponent implements OnInit {
   }
 
   private addNFromFourQuestionForm(id: string) {
+    this.taskForms = this.quizForm.get('taskForms') as FormArray;
     this.taskForms.push(this.formBuilder.group({
       id: [id, Validators.required],
       type: ['n-from-four-question', Validators.required],
@@ -103,6 +107,7 @@ export class QuizComponent implements OnInit {
   }
 
   private addNumberQuestionForm(id: string) {
+    this.taskForms = this.quizForm.get('taskForms') as FormArray;
     this.taskForms.push(this.formBuilder.group({
       id: [id, Validators.required],
       type: ['number-question', Validators.required],
@@ -111,6 +116,7 @@ export class QuizComponent implements OnInit {
   }
 
   private addWordQuestionForm(id: string) {
+    this.taskForms = this.quizForm.get('taskForms') as FormArray;
     this.taskForms.push(this.formBuilder.group({
       id: [id, Validators.required],
       type: ['word-question', Validators.required],
@@ -119,6 +125,7 @@ export class QuizComponent implements OnInit {
   }
 
   private addIntervalQuestionForm(id: string) {
+    this.taskForms = this.quizForm.get('taskForms') as FormArray;
     this.taskForms.push(this.formBuilder.group({
       id: [id, Validators.required],
       type: ['interval-question', Validators.required],
@@ -201,7 +208,13 @@ export class QuizComponent implements OnInit {
         });
         this.score = `${score.toFixed(2)} / ${result.length.toFixed(2)} (${Math.round(score * 100 / result.length)}%)`;
         this.resultReady = true;
-        console.log(result);
+
+        // Debug output
+        console.table(result.map(item => ({
+          id: item._id,
+          question: this.tasks.find(task => task._id === item._id).question.value,
+          mark: item.mark
+        })));
       },
       error => {
         console.error('Submit tasks error occurred: ', error);
@@ -211,5 +224,14 @@ export class QuizComponent implements OnInit {
       }
     );
 
+  }
+
+  getQuestion(questionId: string): string | undefined {
+    const result = this.tasks.find(item => item._id === questionId);
+    if (result === undefined) {
+      console.error(`Cannot find question: ${questionId}`);
+      return;
+    }
+    return result.question.value;
   }
 }

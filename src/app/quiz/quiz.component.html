@@ -4,11 +4,11 @@
       <div formArrayName="taskForms"
       *ngFor="let taskForm of quizForm.get('taskForms').controls; let i = index;">
         <div [formGroupName]="i" >
-          <div class="div" [ngSwitch]="tasks[i].type">
+          <div class="div" [ngSwitch]="taskForm.get('type').value">
 
             <div class="question-wrapper" *ngSwitchCase="'true-false-question'">
               <div class="question">
-                {{i+1}}. {{tasks[i].question.value}}
+                {{i+1}}. {{getQuestion(taskForm.get('id').value)}}
               </div>
               <div class="options true-false-options">
                 <mat-radio-group formControlName="value">
@@ -20,7 +20,7 @@
 
             <div class="question-wrapper" *ngSwitchCase="'one-from-four-question'">
               <div class="question">
-                {{i+1}}. {{tasks[i].question.value}}
+                {{i+1}}. {{getQuestion(taskForm.get('id').value)}}
               </div>
               <div class="options one-from-four-option">
                 <mat-radio-group formControlName="value">
@@ -36,7 +36,7 @@
 
             <div class="question-wrapper" *ngSwitchCase="'n-from-four-question'">
               <div class="question">
-                {{i+1}}. {{tasks[i].question.value}}
+                {{i+1}}. {{getQuestion(taskForm.get('id').value)}}
               </div>
 
               <div class="options n-from-four-option">
@@ -51,7 +51,7 @@
 
             <div class="question-wrapper" *ngSwitchCase="'number-question'">
               <div class="question">
-                {{i+1}}. {{tasks[i].question.value}}
+                {{i+1}}. {{getQuestion(taskForm.get('id').value)}}
               </div>
 
               <div class="options number-question-answer">
@@ -67,7 +67,7 @@
 
             <div class="question-wrapper" *ngSwitchCase="'word-question'">
               <div class="question">
-                {{i+1}}. {{tasks[i].question.value}}
+                {{i+1}}. {{getQuestion(taskForm.get('id').value)}}
               </div>
 
               <div class="options word-question-answer">
@@ -83,7 +83,7 @@
 
             <div class="question-wrapper" *ngSwitchCase="'interval-question'">
               <div class="question">
-                {{i+1}}. {{tasks[i].question.value}}
+                {{i+1}}. {{getQuestion(taskForm.get('id').value)}}
               </div>
 
               <div class="options interval-question-answer">
